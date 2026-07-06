@@ -1,1 +1,2 @@
-# Weather tool
+def get_weather(city: str):
+    ...
