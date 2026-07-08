@@ -1,7 +1,7 @@
-import requests
+import requests          # used to send HTTP Get requests to the Open-Meteo API.
 
 
-WEATHER_CODES = {
+WEATHER_CODES = {                 # open metro returns a weather code  and it converts the code to a human readable format.
     0: "Clear sky",
     1: "Mainly clear",
     2: "Partly cloudy",
@@ -24,8 +24,8 @@ WEATHER_CODES = {
 }
 
 
-def geocode_city(city: str) -> dict:
-    url = "https://geocoding-api.open-meteo.com/v1/search"
+def geocode_city(city: str) -> dict:        # converta a city name to latitude and longitude using the Open-Meteo Geocoding API.
+    url = "https://geocoding-api.open-meteo.com/v1/search"         
 
     try:
         response = requests.get(
@@ -38,14 +38,14 @@ def geocode_city(city: str) -> dict:
             },
             timeout=15,
         )
-        response.raise_for_status()
-        data = response.json()
+        response.raise_for_status()   # raises an exception if the request was unsuccessful.
+        data = response.json()         # converts the response to a python dictionary.
 
-        results = data.get("results", [])
+        results = data.get("results", [])           # gets the results from the response, if there are no results it returns an empty list.
         if not results:
             return {"error": f"Could not find location: {city}"}
 
-        place = results[0]
+        place = results[0]                   # gets the first result from the results list.
         return {
             "name": place.get("name"),
             "country": place.get("country"),
@@ -53,12 +53,12 @@ def geocode_city(city: str) -> dict:
             "longitude": place.get("longitude"),
             "timezone": place.get("timezone", "auto"),
         }
-
-    except requests.RequestException as error:
+ 
+    except requests.RequestException as error:                        
         return {"error": f"Geocoding failed: {str(error)}"}
 
 
-def get_weather(location: str, day: str = "today") -> dict:
+def get_weather(location: str, day: str = "today") -> dict:                # gets the weather for a given location and day and this is the main function.
     place = geocode_city(location)
 
     if "error" in place:
@@ -71,7 +71,7 @@ def get_weather(location: str, day: str = "today") -> dict:
     try:
         response = requests.get(
             url,
-            params={
+            params={                           # these tell the API which location to grt weather for.
                 "latitude": place["latitude"],
                 "longitude": place["longitude"],
                 "current": "temperature_2m,precipitation,rain,weather_code,wind_speed_10m",
@@ -82,19 +82,19 @@ def get_weather(location: str, day: str = "today") -> dict:
             timeout=15,
         )
         response.raise_for_status()
-        data = response.json()
+        data = response.json()               # converts the response to a python dictionary.
 
-        daily = data.get("daily", {})
-        current = data.get("current", {})
+        daily = data.get("daily", {})         # gets the daily weather data from the response.
+        current = data.get("current", {})     # gets the current weather data from the response.
 
         if not daily.get("time"):
             return {"error": "Weather data is not available."}
 
-        weather_code = daily["weather_code"][day_index]
-        rain_sum = daily["precipitation_sum"][day_index]
+        weather_code = daily["weather_code"][day_index]          # gets the weather code for the requested day.
+        rain_sum = daily["precipitation_sum"][day_index]         # gets the total precipitation for the requested day.
 
-        return {
-            "location": f"{place['name']}, {place['country']}",
+        return {                                                      # returns the final weather report.
+            "location": f"{place['name']}, {place['country']}",     
             "requested_day": day,
             "date": daily["time"][day_index],
             "condition": WEATHER_CODES.get(weather_code, "Unknown weather condition"),
@@ -106,5 +106,5 @@ def get_weather(location: str, day: str = "today") -> dict:
             "current_wind_speed_kmh": current.get("wind_speed_10m"),
         }
 
-    except requests.RequestException as error:
+    except requests.RequestException as error:                   # error handling.
         return {"error": f"Weather API failed: {str(error)}"}
