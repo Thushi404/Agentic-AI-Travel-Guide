@@ -71,7 +71,7 @@ def geocode_location(query: str) -> dict:                # converts a place name
         return {"error": f"Geoapify geocoding failed: {str(error)}"}
 
 
-def search_places(
+def search_places(                           # search nearby places using the Geoapify Places API.
     near: str,
     category: str = "attractions",
     radius_m: int = 5000,
@@ -79,11 +79,11 @@ def search_places(
 ) -> dict:
     center = geocode_location(near)
 
-    if "error" in center:
+    if "error" in center:       
         return center
 
-    geoapify_category = CATEGORY_MAP.get(category.lower(), category)
-    url = "https://api.geoapify.com/v2/places"
+    geoapify_category = CATEGORY_MAP.get(category.lower(), category)       # converts the user-friendly category into a geopify category.
+    url = "https://api.geoapify.com/v2/places" 
 
     try:
         response = requests.get(
@@ -102,7 +102,7 @@ def search_places(
 
         places = []
 
-        for feature in data.get("features", []):
+        for feature in data.get("features", []):       # iterates through the features in the response and extracts relevant information about each place.
             props = feature.get("properties", {})
             lat = props.get("lat")
             lon = props.get("lon")
@@ -111,7 +111,7 @@ def search_places(
             if lat and lon:
                 distance_km = haversine_km(center["lat"], center["lon"], lat, lon)
 
-            places.append(
+            places.append(                         # appends the place information to the places list.
                 {
                     "name": props.get("name") or props.get("address_line1") or "Unnamed place",
                     "address": props.get("formatted"),
@@ -120,31 +120,31 @@ def search_places(
                 }
             )
 
-        return {
+        return {                          # returns the final result containing all the information.
             "near": center["name"],
             "category": category,
             "radius_m": radius_m,
             "results": places,
         }
 
-    except requests.RequestException as error:
+    except requests.RequestException as error:                   # error handling for the places search request.
         return {"error": f"Places API failed: {str(error)}"}
 
 
-def can_walk(origin: str, destination: str) -> dict:
+def can_walk(origin: str, destination: str) -> dict:   # check the walking distance between two locations.
     start = geocode_location(origin)
     end = geocode_location(destination)
 
-    if "error" in start:
+    if "error" in start:          # returns an error if the origin location could not be geocoded.
         return start
 
-    if "error" in end:
+    if "error" in end:                 # returns an error if the destination location could not be geocoded.
         return end
 
     distance_km = haversine_km(start["lat"], start["lon"], end["lat"], end["lon"])
-    walking_minutes = round((distance_km / 4.8) * 60)
+    walking_minutes = round((distance_km / 4.8) * 60)                 # assuming an average walking speed of 4.8 km/h. [formula]
 
-    return {
+    return {                                # returns the final result containing the walking distance and estimated time.
         "origin": start["name"],
         "destination": end["name"],
         "distance_km": distance_km,
