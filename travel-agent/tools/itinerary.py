@@ -43,3 +43,5 @@ def create_itinerary(destination: str, days: int = 1, budget: str = "medium") ->
         "itinerary": plan,
         "packing_tip": "Carry an umbrella or raincoat." if weather.get("umbrella_needed") else "Normal light travel packing is enough.",
     }
+                  
+    
