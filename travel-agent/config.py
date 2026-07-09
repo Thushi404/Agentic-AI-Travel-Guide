@@ -1,16 +1,15 @@
-import os                       # it is used to read environment variables.
-from dotenv import load_dotenv
+import os                              # Import the os module to access environment variables
+from dotenv import load_dotenv         # Load environment variables from .env file
 
-load_dotenv()               # makes the variables available inside the python code
+load_dotenv()                            # reads the .env file in the project.
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")        # this gets the OPENAI_API_KEY from the .env file  
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.5")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
-OPENMETEO_BASE_URL = os.getenv("OPENMETEO_BASE_URL", "https://api.open-meteo.com/v1")
-GEOAPIFY_API_KEY = os.getenv("GEOAPIFY_API_KEY")
+GEOAPIFY_API_KEY = os.getenv("GEOAPIFY_API_KEY")            # Get the GeoAPIfy API key from environment variables
 
-if not OPENAI_API_KEY:
-    raise ValueError("OPENAI_API_KEY is missing in .env")    # this checks whether the open api key exists.
+if not OPENAI_API_KEY:                                       # raises an error if the OpenAI API key is missing in the .env file.
+    raise ValueError("OPENAI_API_KEY is missing in .env")
 
-if not GEOAPIFY_API_KEY:
-    raise ValueError("GEOAPIFY_API_KEY is missing in .env")   
+if not GEOAPIFY_API_KEY:                                     # raises an error if the Geoapify API key is missing in the .env file.
+    raise ValueError("GEOAPIFY_API_KEY is missing in .env")
