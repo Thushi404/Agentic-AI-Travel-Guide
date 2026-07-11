@@ -1,1 +1,7 @@
-# Project dependencies
+langchain-openai
+langchain-core
+langgraph
+langchain-mcp-adapters
+mcp
+python-dotenv
+requests
